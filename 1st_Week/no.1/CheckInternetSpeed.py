@@ -1,11 +1,13 @@
 import os
 import socket
 import speedtest
+import argparse
 
 google = "8.8.8.8"
 port = 53
 
-def check_connection():
+##Check to Internet Connection
+def check_connection(args):
     try:
       socket.create_connection((google,port),timeout=3)
       return True
@@ -32,11 +34,21 @@ def check_speed():
    ## 일반문서: x < 100Mbps    
    ## 너무 느리면 핫스팟 추천하기
 
+
+parser = argparse.ArgumentParser(description = "recomand to Internet Connection") 
+sub_parser = parser.add_subparsers(dest="command")
+socket_parser = sub_parser.add_parser("connect", help="ip and port connect test")
+socket_parser.add_argument("--ip", default = google)
+socket_parser.add_argument("--port", default = port)
+socket_parser.set_defaults(func=check_connection)
+
 if __name__ == "__main__":
-   if check_connection():
-       print("Internet is connected.")
-       check_speed()
-   else:
-       print("Internet is not connected.")
+   args = parser.parse_args() 
+   if args.command:
+      if args.func(args):
+         print("Internet is connected.")
+         check_speed()
+      else:
+         print("Internet is not connected.")
     
 
