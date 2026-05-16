@@ -1,0 +1,6 @@
+#!/Users/emet/Desktop/WeekChallenges/1stWeek/.venv/bin/python3
+import sys
+from speedtest import main
+if __name__ == '__main__':
+    sys.argv[0] = sys.argv[0].removesuffix('.exe')
+    sys.exit(main())
