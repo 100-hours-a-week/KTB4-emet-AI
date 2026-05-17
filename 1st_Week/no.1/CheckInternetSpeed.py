@@ -29,8 +29,8 @@ def check_connection(args):
     ip = args.ip
     port = args.port
     try:
-      ##socket.create_connection((ip, port),timeout=3)
-      ##print(f"ip:{ip}, port:{port}")
+      socket.create_connection((ip, port),timeout=3)
+      print(f"ip:{ip}, port:{port}")
       return True
     except OSError:
       return False
