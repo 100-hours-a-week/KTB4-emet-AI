@@ -134,7 +134,7 @@ def read_item(item_id: int, q: str | None = None):
   
 **uv**
 
-파이썬을 전반적으로 관리해주는 툴(pip이상의 기능)
+파이썬을 전반적으로 관리해주는 툴(pip이상의 기능)       
 사용법: https://github.com/100-hours-a-week/KTB4-emet-AI/blob/main/2nd_Week/no.1/uv%20사용법.md
 
 **uvicorn**
@@ -152,7 +152,7 @@ uv add uvicorn
 **starlette**  
 ASGI을 좀더 간결하게 코드 작성도와주는 프레임워크(uvicorn으로 짜는 코드보다 더 짧음)
 
-공식홈:[https://starlette.dev](https://starlette.dev/)
+공식홈: [https://starlette.dev](https://starlette.dev/)
 
 **JSON(JavaScript Object Notation)**
 
