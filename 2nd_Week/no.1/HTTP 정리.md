@@ -135,11 +135,7 @@ def read_item(item_id: int, q: str | None = None):
 **uv**
 
 파이썬을 전반적으로 관리해주는 툴(pip이상의 기능)
-
-```plaintext
-## uv 설치한 상태에서 파이썬 설치 명령어
-uv init --python 3.14.5
-```
+사용법: https://github.com/100-hours-a-week/KTB4-emet-AI/blob/main/2nd_Week/no.1/uv%20사용법.md
 
 **uvicorn**
 
