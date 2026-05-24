@@ -171,7 +171,6 @@ def create_requset_ai(content : str):
             # response가 iterable한지 __iter__ 속성여부로 파악
             # 1줄씩 iter 진행    
             for line in response.iter_lines():
-                print(line)
                 if line and line.startswith("data: "):
                     data_str = line[6:]
                     if data_str.strip() == "[DONE]":
