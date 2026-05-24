@@ -1,6 +1,8 @@
-# 발생한오류들 중 시간을 가장 많이 잡은것들 
+# 2주차 회고
+---
+## 발생한오류들 중 시간을 가장 많이 잡은것들 
 
-## HTTPX
+### HTTPX
 (1)발생오류
 `'httpx.Response' object does not support the context manager protocol (missed __exit__ method)`
 (1)원인
@@ -9,7 +11,7 @@ httpx.Response는 with을 지원안함
 httpx.Client에 with을 써야하는 걸 잘못된위치에 사용하고있었음 
 
 
-## Ollama
+### Ollama
 
 (2)발생오류:
 `Attempted to access streaming response content, without having called read().`
@@ -23,6 +25,7 @@ chunk = data_json["choices"][0]["data"]["content"]
 chunk = data_json["choices"][0]["delta"]["content"] 
 ```
 이후에는 리소스가 부족하다는 에러를 발생시켜 모델 버전을 e4b에서 e2b로 다운그레이드했고, 그 과정에서 ollama 백그라운드 실행에 문제가있는지 꼬여서 kill process 등 완전히 ollama를 재실행해서 코드를 실행하니 정상적으로 response를 받고 원하는 질문을 받았다. 
+
 
 
 ## 최종 회고
