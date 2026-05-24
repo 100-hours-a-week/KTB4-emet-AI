@@ -25,7 +25,7 @@ async def home():
 
 # 글목록확인
 @app.get("/boards")
-async def get_board(request : Request):
+async def get_boards(request : Request):
     # 문제가 생긴 글목록인 경우
     if len(boards) < 0 :
         return JSONResponse({"message": f"Boards has no board"}, status_code = 404)
