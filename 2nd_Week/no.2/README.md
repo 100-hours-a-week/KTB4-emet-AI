@@ -4,7 +4,12 @@
 ---
 ```bash
 
+# 가상환경 패키지 설치
+uv add fastapi uvicorn sqlmodel httpx
+
+# Ollama 설치 후
 # Ollama 실행(모델: gemma4:e2b ) (ver0.2, ver0.3, ver0.4 요약 기능 사용 시)
+ollama pull gemma4:e2b
 ollama serve
 
 # sql모델 패키지 설치 (ver0.3, ver0.4 실행시)
@@ -32,6 +37,18 @@ ver0.4/
 ├── ollama_controller.py   # ollama 컨트롤러(AI 요약)   
 ├── datatype.py            # 데이터 모델  
 └── database.py            # DB 연결 설정   
+
+## DB구 조
+
+### Board 테이블 (board 테이블)
+| 컬럼명       | 타입      | NULL 허용 | 기본값   | 제약조건        | 설명                    |
+|-------------|---------|---------|--------|--------------|------------------------|
+| `board_id`  | INTEGER | ❌       | 자동증가  | PRIMARY KEY  | 게시글 고유 ID           |
+| `title`     | TEXT    | ❌       | -      | NOT NULL     | 게시글 제목              |
+| `user_name` | TEXT    | ❌       | -      | NOT NULL     | 작성자 이름              |
+| `content`   | TEXT    | ✅       | NULL   | -            | 게시글 내용              |
+| `summary`   | TEXT    | ✅       | NULL   | -            | AI 요약 (요약 전 NULL)  |
+
 
 ## API  Endpoints
 Base URL : `/boards`
