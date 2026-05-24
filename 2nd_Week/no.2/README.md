@@ -52,6 +52,6 @@ Base URL : `/boards`
 | `400` | `missing_required_fields` | title 또는 user_name 누락 |
 | `400` | `board_id_error` | 삭제 결과 ID 불일치 |
 | `400` | `can_not_be_summarized` | 요약 결과 없음 또는 요약 불가 |
-| `404` | `no_boards_found` | 게시글 없음 (전체 조회) |
+| `404` | `no_boards_found` | 전체 게시글 없음  |
 | `404` | `board_not_found` | 해당 ID 게시글 없음 |
 
