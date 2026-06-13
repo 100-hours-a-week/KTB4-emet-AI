@@ -29,20 +29,49 @@
 과제2: VGG16 전이 모델
 - 깊은 층을 가진 Resnet50은 기본적으로 학습시간이 길다. 그래서 학습시간을 감소시키기위해 아래와 같이 구성했다.
 ~~~
-        <원본 구성(models.resnet50)>          ->            <MyResNet50>        
-------------------------------------------------------------------------------------------------    
-[0] conv1                                             [0] conv1  
-[1] bn1                                               [1] bn1   
-[2] relu                                              [2] relu   
-[3] maxpool                                           [3] maxpool  
-[4] layer1                                            [4] layer1  
-[5] layer2                                            [5] layer2  
-[6] layer3                                            [6] layer3  
-[7] layer4                                            [7] avgpool    
-[8] avgpool                                           [8] fc1(1024->512)
-[9] fc(2048->1000)                                    [9] fc2(512->256)
-                                                      [10]fc3(256->num_class)                                                                  
-~~~
+ <원본 구성(models.vgg16)>                ->          <base_vgg16 수정 후>
+----------------------------------------------------------------------------------------------------
+features:                                             features:
+[0]  Conv2d(3→64)                                     [0]  Conv2d(3→64)
+[1]  ReLU                                             [1]  ReLU
+[2]  Conv2d(64→64)                                    [2]  Conv2d(64→64)
+[3]  ReLU                                             [3]  ReLU
+[4]  MaxPool2d                                        [4]  MaxPool2d
+[5]  Conv2d(64→128)                                   [5]  Conv2d(64→128)
+[6]  ReLU                                             [6]  ReLU
+[7]  Conv2d(128→128)                                  [7]  Conv2d(128→128)
+[8]  ReLU                                             [8]  ReLU
+[9]  MaxPool2d                                        [9]  MaxPool2d
+[10] Conv2d(128→256)                                  [10] Conv2d(128→256)
+[11] ReLU                                             [11] ReLU
+[12] Conv2d(256→256)                                  [12] Conv2d(256→256)
+[13] ReLU                                             [13] ReLU
+[14] Conv2d(256→256)                                  [14] Conv2d(256→256)
+[15] ReLU                                             [15] ReLU
+[16] MaxPool2d                                        [16] MaxPool2d
+[17] Conv2d(256→512)  
+[18] ReLU
+[19] Conv2d(512→512)                                  classifier:
+[20] ReLU                                             [0] Linear(25088→4096)
+[21] Conv2d(512→512)                                  [1] ReLU
+[22] ReLU                                             [2] Dropout(0.5)
+[23] MaxPool2d                                        [3] Linear(4096→4096)
+[24] Conv2d(512→512)                                  [4] ReLU
+[25] ReLU                                             [5] Dropout(0.5)
+[26] Conv2d(512→512)
+[27] ReLU
+[28] Conv2d(512→512)
+[29] ReLU            
+[30] MaxPool2d        
+
+classifier:
+[0] Linear(25088→4096)
+[1] ReLU
+[2] Dropout(0.5)
+[3] Linear(4096→4096)
+[4] ReLU
+[5] Dropout(0.5)       
+[6] Linear(4096→1000)  
 
 과제4: VGG16 전이 모델
 
