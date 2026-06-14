@@ -46,23 +46,40 @@ class CausalSelfAttention(nn.Module):
 
     def __init__(self):
         super().__init__()
-        self.qkv = nn.Linear(n_embd, 3 * n_embd)   # project x to Q, K, V at once
-        self.proj = nn.Linear(n_embd, n_embd)      # merge heads back together
+        self.qkv = nn.Linear(n_embd, 3 * n_embd)   # Q,K,V 한번에 계산하기 위한 레이어: 3분할을 위해서 출력크기 3 * n_embd설정
+        self.proj = nn.Linear(n_embd, n_embd)      # 멀티헤드 어텐션 결과를 합친 후 최종 출력하는 레이어
         self.drop = nn.Dropout(dropout)
 
     def forward(self, x):
-        B, T, C = x.shape
-        head_dim = C // n_head
-        # each of q, k, v: (B, T, C) -> (B, n_head, T, head_dim)
-        q, k, v = self.qkv(x).chunk(3, dim=-1)
+        B, T, C = x.shape            # B=배치크기, T=문장길이(시퀀스), C=임베딩차원 으로 분리
+        head_dim = C // n_head       # head_dim=헤드당 차원
+
+        # q, k, v 얻기 위해 텐서를 열방향으로  3등분
+        ## self.qkv(x) = tensor[(B, T, 3*C)] 
+        q, k, v = self.qkv(x).chunk(3, dim=-1)    
+        # 
+        ## 1차 변환: 텐서[B, T, C]를 형태만 변환해서 텐서[B, T, n_head, head_dim]
+        ## 2차 변환: 텐서[B, T, n_head, head_dim]의 1,2차원을 교환해서 텐서[B, n_head, T, head_dim]로 변환
+        ### 텐서를 각 헤드별로 병렬계산하기위해서
         q = q.view(B, T, n_head, head_dim).transpose(1, 2)
         k = k.view(B, T, n_head, head_dim).transpose(1, 2)
         v = v.view(B, T, n_head, head_dim).transpose(1, 2)
-        # attention scores: how much each position attends to every earlier one
+
+        # 어텐션 점수: q와 k행렬 곱 진행후, 스케일링
         att = q @ k.transpose(-2, -1) / head_dim**0.5        # (B, n_head, T, T)
+
+        # 좌측하단이 직각이며 True의 시작점인 삼각형(torch.tril) 마스크 생성
+        ## 미래토큰을 볼수없고, 현재와 과거만 볼수있도록 강제함
+        ### tensor([[True,  False, False, False],
+        ###         [True,  True,  False, False],
+        ###         [True,  True,  True,  False],
+        ###         [True,  True,  True,  True ]])
         causal = torch.tril(torch.ones(T, T, dtype=torch.bool, device=x.device))
-        att = att.masked_fill(~causal, float("-inf"))        # no peeking at the future
+        # false를 -inf로 채움
+        ## softmax를 거치면 -inf는 0이되면서 미래토큰 완전 무시
+        att = att.masked_fill(~causal, float("-inf"))        
         att = self.drop(F.softmax(att, dim=-1))
+
         out = att @ v                                        # (B, n_head, T, head_dim)
         out = out.transpose(1, 2).reshape(B, T, C)           # concat heads
         return self.drop(self.proj(out))
