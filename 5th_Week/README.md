@@ -3,8 +3,13 @@
 ## 설명
 
 ### Dataset
+#### 과제 1~4
+- 데이터  
 
-
+#### 과제 5
+- 말뭉치 데이터(korean_chatbot_data: 챗봇 트레이닝용 문답 페어)
+- 출처: Korpora: Korean Corpora Archives[https://github.com/ko-nlp/Korpora]
+  - 오픈소스 파이썬 패키지
 
 ### 모델 설계
 과제1: Resnet50 전이 모델
