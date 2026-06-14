@@ -52,7 +52,7 @@ class CausalSelfAttention(nn.Module):
 
     def forward(self, x):
         B, T, C = x.shape            # B=배치크기, T=문장길이(시퀀스), C=임베딩차원 으로 분리
-        head_dim = C // n_head       # head_dim=헤드당 차원
+        head_dim = C // n_head       # 몫연산, head_dim=헤드당 차원
 
         # q, k, v 얻기 위해 텐서를 열방향으로  3등분
         ## self.qkv(x) = tensor[(B, T, 3*C)] 
@@ -65,7 +65,7 @@ class CausalSelfAttention(nn.Module):
         k = k.view(B, T, n_head, head_dim).transpose(1, 2)
         v = v.view(B, T, n_head, head_dim).transpose(1, 2)
 
-        # 어텐션 점수: q와 k행렬 곱 진행후, 스케일링
+        # 어텐션 점수: q와 k행렬 내적곱 진행후, 스케일링
         att = q @ k.transpose(-2, -1) / head_dim**0.5        # (B, n_head, T, T)
 
         # 좌측하단이 직각이며 True의 시작점인 삼각형(torch.tril) 마스크 생성
@@ -75,7 +75,7 @@ class CausalSelfAttention(nn.Module):
         ###         [True,  True,  True,  False],
         ###         [True,  True,  True,  True ]])
         causal = torch.tril(torch.ones(T, T, dtype=torch.bool, device=x.device))
-        # false를 -inf로 채움
+        # 위의 마스크를 반전시키고, True를 -inf로 변환
         ## softmax를 거치면 -inf는 0이되면서 미래토큰 완전 무시
         att = att.masked_fill(~causal, float("-inf"))        
         att = self.drop(F.softmax(att, dim=-1))
