@@ -38,7 +38,9 @@ n_train = int(0.9 * len(data))  # hold out the last 10% to measure overfitting
 train_data, val_data = data[:n_train], data[n_train:]
 ~~~
 
-### Atteion
+### Self-Atteion
+~~~
+# 셀프 어텐션 역할을 하는 "CausalSelfAttention" 클래스
 class CausalSelfAttention(nn.Module):
     """Multi-head scaled dot-product attention: softmax(QK^T / sqrt(d) + mask) V."""
 
@@ -64,7 +66,7 @@ class CausalSelfAttention(nn.Module):
         out = att @ v                                        # (B, n_head, T, head_dim)
         out = out.transpose(1, 2).reshape(B, T, C)           # concat heads
         return self.drop(self.proj(out))
-
+~~~
 
 ### Deocoder
 ~~~
@@ -90,8 +92,11 @@ class Block(nn.Module):
         x = x + self.mlp(self.ln2(x))
         return x
 ~~~
+
 ### MiniGPT
+
 #### Main Body
+
 ~~~
 class MiniGPT(nn.Module):
     def __init__(self):
@@ -112,7 +117,9 @@ class MiniGPT(nn.Module):
             loss = F.cross_entropy(logits.view(-1, vocab_size), targets.view(-1))
         return logits, loss
 ~~~
+
 #### Train
+
 ~~~
 def train(model):
     print(f"{sum(p.numel() for p in model.parameters()):,} parameters, device={device}")
@@ -136,7 +143,9 @@ def train(model):
     print("\n--- sample ---")
     print(decode(model.generate(prompt, 500)[0].tolist()))
 ~~~
+
 #### Predict
+
 ~~~
 @torch.no_grad()
 def estimate_loss(model):
@@ -147,7 +156,9 @@ def estimate_loss(model):
     model.train()
     return out
 ~~~
+
 -------------------------------------------------------------------------------------------------------------
+
 ~~~
 
 class MiniGPT(nn.Module):
