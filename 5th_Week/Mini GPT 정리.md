@@ -82,7 +82,7 @@ class Block(nn.Module):
         self.ln2 = nn.LayerNorm(n_embd)            # 레이어 정규화2
         self.mlp = nn.Sequential(                  # 멀티 레이어 페셉트론
             nn.Linear(n_embd, 4 * n_embd),            ## 선형레이어1
-            nn.GELU(),                                ## GELU ?
+            nn.GELU(),                                ## GELU(Gaussian Error Linear Unit)
             nn.Linear(4 * n_embd, n_embd),            ## 선형레이어2
             nn.Dropout(dropout),                      ## 드롭아웃
         )
@@ -244,6 +244,43 @@ def chat(model):
 ~~~
 
 
+## Module
+
+### torch.nn
+
+#### nn.Embedding(num_embeddings, embedding_dim)
+- 기능: 입력 텐서를 다차원 텐서로 확장
+- params
+    - num_embeddings : 단어 사전 크기 (총 단어 수) 또는 문장 길이
+    - embedding_dim  : 출력 벡터 크기 
+  예)  
+- 사용법
+    - **토큰 임베딩**
+        - 토큰화된 단어(인데스 번호)를 임베딩해서 벡터로 변환  
+        - 예)
+          tensor([3, 6]) # 단어 토큰
+          -> nn.Embedding(num_embeddings=10,embedding_dim=4)
+          -> tensor([[ 0.7890, -0.2345,  0.6789, -0.1234],    # 인덱스 3번 단어 벡터
+                  [-0.4567,  0.8901, -0.3456,  0.7890]],      # 인덱스 6번 단어 벡터
+                  grad_fn=<EmbeddingBackward0>)
+    - **포지셔널 인코딩**
+        - 위치 인덱스를 인코딩해서 벡터로 변환
+        - 예)
+          tensor([0, 1, 2, 3, 4])
+          -> pos_embedding = nn.Embedding(num_embeddings=seq_len, embedding_dim=4)
+          -> tensor([[-0.12,  0.56, -0.90,  0.34],   # 0번째 위치 벡터
+                  [ 0.78, -0.23,  0.67, -0.12],   # 1번째 위치 벡터
+                  [-0.45,  0.89, -0.34,  0.78],   # 2번째 위치 벡터
+                  [ 0.12, -0.56,  0.90, -0.34],   # 3번째 위치 벡터
+                  [-0.78,  0.23, -0.67,  0.12]],  # 4번째 위치 벡터
+                  grad_fn=<EmbeddingBackward0>)
+    
+
+        - grad_fn=<EmbeddingBackward0> : 역전파 추적 정보(made by nn.Embedding 을 표시하는 태그)
+            - grad_fn = gradient function (기울기 계산 함수)
+            - Embedding = nn.Embedding 레이어를 통과했다
+            - Backward = 역전파 시 이 함수로 기울기를 계산하겠다
+            - 0 = 연산 순서 번호
 
 
 
