@@ -4,7 +4,10 @@
 
 ### Dataset
 #### 과제 1~4
-- 데이터  
+- images.npy & labels.npy (dataset_images.zip)
+설명: 흰바탕에 원,삼각형,사각형으로 구성된 심플한 도형 이미지
+형태: 이미지 데이터셋
+수: 도형 300EA(각 도형 균일 수량)
 
 #### 과제 5
 - 말뭉치 데이터(korean_chatbot_data: 챗봇 트레이닝용 문답 페어)
