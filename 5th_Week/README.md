@@ -39,7 +39,7 @@
 ~~~
         < 원본 구성(models.vgg16) >                ->          < MyVGG16 >
 ----------------------------------------------------------------------------------------------------
-features:                                             features:
+features:                                             base_model.features:
 [0]  Conv2d(3→64)                                     [0]  Conv2d(3→64)
 [1]  ReLU                                             [1]  ReLU
 [2]  Conv2d(64→64)                                    [2]  Conv2d(64→64)
@@ -57,29 +57,35 @@ features:                                             features:
 [14] Conv2d(256→256)                                  [14] Conv2d(256→256)
 [15] ReLU                                             [15] ReLU
 [16] MaxPool2d                                        [16] MaxPool2d
-[17] Conv2d(256→512)                                  [17] Conv2d(256→256)  ┐
-[18] ReLU                                             [18] ReLU             │ self.feature
-[19] Conv2d(512→512)                                  [19] MaxPool2d        │
-[20] ReLU                                             [20] Conv2d(256→256)  │
-[21] Conv2d(512→512)                                  [21] ReLU             │
-[22] ReLU                                             [22] MaxPool2d        ┘
-[23] MaxPool2d
-[24] Conv2d(512→512)                                  self.classifier:
-[25] ReLU                                             [0] Linear(12544→4096)         
-[26] Conv2d(512→512)                                  [1] ReLU                       
-[27] ReLU                                             [2] Dropout(0.5)                
-[28] Conv2d(512→512)                                  [3] Linear(4096→4096)          
-[29] ReLU                                             [4] ReLU                       
-[30] MaxPool2d                                        [5] Dropout(0.5)               
-                                                      [6] Linear(4096→num_classes)   
-classifier:
-[0] Linear(25088→4096)
-[1] ReLU
-[2] Dropout(0.5)
-[3] Linear(4096→4096)
-[4] ReLU
-[5] Dropout(0.5)
-[6] Linear(4096→1000)
+[17] Conv2d(256→512)                                  self.feature:
+[18] ReLU                                             [0]  Conv2d(256→256,)
+[19] Conv2d(512→512)                                  [1]  ReLU
+[20] ReLU                                             [2]  MaxPool2d
+[21] Conv2d(512→512)                                  [3]  Conv2d(256→256)
+[22] ReLU                                             [4]  ReLU
+[23] MaxPool2d                                        [5]  Conv2d(256→256)
+[24] Conv2d(512→512)                                  [6]  ReLU
+[25] ReLU                                             [7]  MaxPool2d
+[26] Conv2d(512→512)                                  
+[27] ReLU                                             
+[28] Conv2d(512→512)
+[29] ReLU
+[30] MaxPool2d
+
+AdaptiveAvgPool2d(output=(7,7))                       AdaptiveAvgPool2d(output=(7,7))
+
+classifier:                                           self.classifier:
+[0] Linear(25088→4096)                                [0] Linear(12544→4096)
+[1] ReLU                                              [1] ReLU
+[2] Dropout(0.5)                                      [2] Dropout(0.4)
+[3] Linear(4096→4096)                                 [3] Linear(4096→1024)
+[4] ReLU                                              [4] ReLU
+[5] Dropout(0.5)                                      [5] Dropout(0.4)
+[6] Linear(4096→1000)                                 [6] Linear(1024→1024)
+                                                      [7] ReLU
+                                                      [8] Dropout(0.4)
+                                                      [9] Linear(1024→num_classes)
+                                                      [10] Softmax(dim=1)
 ~~~
 
 과제4: VGG16 전이 모델
