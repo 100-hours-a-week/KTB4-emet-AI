@@ -6,11 +6,12 @@
 
 ## 결과
 - 모델 성능 비교
-  - epoch:10, lr: 0.01 
+  - epoch:10, lr: 0.01
+  - **Resnet50 Test Accuracy: 66.67%   |   VGG16 Test Accuracy 33.33%**
   <img width="554" height="448" alt="image" src="https://github.com/user-attachments/assets/d13d42ac-5067-4eb0-9870-098579f274aa" />
 
-  Resnet50 기반 전이 모델Test Accuracy: 66.67%
-  VGG16기반 전이 모델 정확도 33.33%
+    
+    
 - 그리드 서치와 랜덤 서치
   
 ### Dataset
@@ -19,6 +20,7 @@
 설명: 다색 바탕에 원,삼각형,사각형으로 구성된 도형 이미지
 형태: 이미지 데이터셋
 수: 도형 1200EA(각 도형 균일 수량)
+훈련,테스트 비율: 8:2
 
 ### 모델 설계
 과제1: Resnet50 전이 모델
@@ -122,11 +124,11 @@ from skorch import NeuralNetClassifier
 # 모델 래핑
 model_wrapped = NeuralNetClassifier(
     module=base_model,
-    module__num_classes=num_classes,  # module__: base_model의 변수인자값 설정 
+    module__num_classes=num_classes,  # module__: base_model의 인자 num_classes값 설정 
     criterion=nn.CrossEntropyLoss,    # 손실함수 설정
     optimizer=torch.optim.Adam,       # 옵티마이저 설정 
     max_epochs=10,                    # 최대 에포크 수   
-    device=device,                    # cpu,gpu 할당
+    device=device,                    # cpu,gpu 할당(gpu할당함)
     verbose=0,                        # 콘솔에서 출력되는 정보량
 )
 ~~~
