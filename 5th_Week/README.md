@@ -1,22 +1,26 @@
 # 5주차 회고록
 
 ## 설명
+  - Resnet50과 VGG16의 모델 구성을 불러와서(가중치X) 레이어를 재구성해서 생성하고 학습하여 모델을 테스트하고 두 모델의 성능을 비교합니다.
+  - 그 후, 두 모델의 하이퍼파라미터인 학습률과 배치사이즈를 그리드 서치와 랜덤 서치를 진행해서 서치 전후 모델 성능을 확입합니다.
 
+## 결과
+- 모델 성능 비교
+  - epoch:10, lr: 0.01 
+<img width="593" height="432" alt="image" src="https://github.com/user-attachments/assets/d27bf884-e173-4711-b8bc-8c0a6ee48e66" />
+  Resnet50 기반 전이 모델Test Accuracy: 33.33%
+  VGG16기반 전이 모델 정확도 33.33%
+- 그리드 서치와 랜덤 서치
+  
 ### Dataset
 #### 과제 1~4
-- images.npy & labels.npy (dataset_images.zip)
-설명: 흰바탕에 원,삼각형,사각형으로 구성된 심플한 도형 이미지
+- images_360.npy & labels_360.npy
+설명: 다색 바탕에 원,삼각형,사각형으로 구성된 도형 이미지
 형태: 이미지 데이터셋
-수: 도형 300EA(각 도형 균일 수량)
-
-#### 과제 5
-- 말뭉치 데이터(korean_chatbot_data: 챗봇 트레이닝용 문답 페어)
-- 출처: Korpora: Korean Corpora Archives[https://github.com/ko-nlp/Korpora]
-  - 오픈소스 파이썬 패키지
+수: 도형 1200EA(각 도형 균일 수량)
 
 ### 모델 설계
 과제1: Resnet50 전이 모델
-- 깊은 층을 가진 Resnet50은 기본적으로 학습시간이 길다. 그래서 학습시간을 감소시키기위해 아래와 같이 구성했다.
 - (layer1~layer4는) 각각 연속적인 층조합을 가진 복합층이다.
 ~~~
         < 원본 구성(models.resnet50) >          ->            < MyResNet50 >        
@@ -35,7 +39,6 @@
 ~~~
 
 과제2: VGG16 전이 모델
-- 깊은 층을 가진 Resnet50은 기본적으로 학습시간이 길다. 그래서 학습시간을 감소시키기위해 아래와 같이 구성했다.
 ~~~
         < 원본 구성(models.vgg16) >                ->          < MyVGG16 >
 ----------------------------------------------------------------------------------------------------
@@ -94,9 +97,36 @@ classifier:                                           self.classifier:
 
 
 
-## 개선한점
-1. sklearn의 라이브러리 사용
-   - 교재에서는 tensorflow.keras의 각 라이브러리를 사용했으나 이는 , 저는 공식 문서를 확인해서 sklearn 라이브러리를 사용해봤습니다. 
+## 개선한점 또는 새롭게 도전한점
+### 전이 모델 설계
+- 설계 이유: 코랩의 세션당 제한된 GPU 메모리로 인해 두 모델의 사이즈를 줄이는 방향으로 훈련 및 테스트함(그리드 서치와 랜덤서치중 GPU 메모리부족 발생)
+
+### sklearn.model_selection
+- 사이킷런의 최적 하이퍼파라미터 검색 모듈
+- 사용이유: 교재에서는 텐서플로우 방식으로 모델을 작성해서 그리드서치와 랜덤서치에서 tensorflow.keras의 각 라이브러리를 사용했다. 하지만 나는 경험적인 이유로 파이토치 방식으로 모델을 생성하고 그리드서치와 랜덤서치를 사용했다. 이를 위해 sklearn.model_selection의 GridSearchCV와 RandomizedSearchCV를 사용했습니다.
+  
+### skorch.NeuralNetClassifier
+- 파이토치모델을 사이킷런과 동일방식으로 훈련하고 사이킷런과 사용할 수 있게 래핑 해주는 클래스
+- 사용이유: klearn.model_selection을 사용하기위해서는 사이킷런 방식의 fit()함수가 필요하지만 파이토치방식에서는 존재하지 않는다. 해결책으로 학습때처럼 반복문을 사용하거나, 별도의 방법을 찾아야한다. 그래서 나는 파이토치 모델을 래핑하는 skorch.NeuralNetClassifier를 사용했다.
+- 
+~~~
+# 설치
+! pip install skorch
+
+# 임포트
+from skorch import NeuralNetClassifier
+
+# 모델 래핑
+model_wrapped = NeuralNetClassifier(
+    module=base_model,
+    module__num_classes=num_classes,  # module__: base_model의 변수인자값 설정 
+    criterion=nn.CrossEntropyLoss,    # 손실함수 설정
+    optimizer=torch.optim.Adam,       # 옵티마이저 설정 
+    max_epochs=10,                    # 최대 에포크 수   
+    device=device,                    # cpu,gpu 할당
+    verbose=0,                        # 콘솔에서 출력되는 정보량
+)
+~~~
 
 
 ## 회고
