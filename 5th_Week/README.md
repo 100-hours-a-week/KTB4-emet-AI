@@ -7,8 +7,9 @@
 ## 결과
 - 모델 성능 비교
   - epoch:10, lr: 0.01 
-<img width="593" height="432" alt="image" src="https://github.com/user-attachments/assets/d27bf884-e173-4711-b8bc-8c0a6ee48e66" />
-  Resnet50 기반 전이 모델Test Accuracy: 33.33%
+  <img width="554" height="448" alt="image" src="https://github.com/user-attachments/assets/d13d42ac-5067-4eb0-9870-098579f274aa" />
+
+  Resnet50 기반 전이 모델Test Accuracy: 66.67%
   VGG16기반 전이 모델 정확도 33.33%
 - 그리드 서치와 랜덤 서치
   
@@ -88,16 +89,18 @@ classifier:                                           self.classifier:
                                                       [7] ReLU
                                                       [8] Dropout(0.4)
                                                       [9] Linear(1024→num_classes)
-                                                      [10] Softmax(dim=1)
+                                                      
 ~~~
 
 과제4: VGG16 전이 모델
 
 
+## 발생한 문제점
+### softmax와 손실함수 중복
+처음에 잘못 설계해서 두 모델의 최종 손실(Loss)이 높고 정확도(Accuracy)가 낮았습니다. 
+확인을 해보니 두 모델에서 무지성으로 softmax를 추가해서 손실함수인 크로스엔트로피
 
-
-
-## 개선한점 또는 새롭게 도전한점
+## 개선한점
 ### 전이 모델 설계
 - 설계 이유: 코랩의 세션당 제한된 GPU 메모리로 인해 두 모델의 사이즈를 줄이는 방향으로 훈련 및 테스트함(그리드 서치와 랜덤서치중 GPU 메모리부족 발생)
 
