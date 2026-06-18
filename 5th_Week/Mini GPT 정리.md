@@ -55,18 +55,21 @@ class CausalSelfAttention(nn.Module):
         head_dim = C // n_head       # 몫연산, head_dim=헤드당 차원
 
         # q, k, v 얻기 위해 텐서를 열방향으로  3등분
-        ## self.qkv(x) = tensor[(B, T, 3*C)] 
+        ## self.qkv(x) = tensor[(B, T, 3*C)]
+        ## 1차 변환: 텐서[B, T, C] -(차원 확장)-> 텐서[B, T, n_head, head_dim]
         q, k, v = self.qkv(x).chunk(3, dim=-1)    
-        # 
-        ## 1차 변환: 텐서[B, T, C]를 형태만 변환해서 텐서[B, T, n_head, head_dim]
-        ## 2차 변환: 텐서[B, T, n_head, head_dim]의 1,2차원을 교환해서 텐서[B, n_head, T, head_dim]로 변환
+        
+   
+        ## 2차 변환: 텐서[B, T, n_head, head_dim] -(1,2 차원 교환)-> [B, n_head, T, head_dim]로 변환
         ### 텐서를 각 헤드별로 병렬계산하기위해서
         q = q.view(B, T, n_head, head_dim).transpose(1, 2)
         k = k.view(B, T, n_head, head_dim).transpose(1, 2)
         v = v.view(B, T, n_head, head_dim).transpose(1, 2)
 
-        # 어텐션 점수: q와 k행렬 내적곱 진행후, 스케일링
-        att = q @ k.transpose(-2, -1) / head_dim**0.5        # (B, n_head, T, T)
+        # 어텐션 점수: q와 k전치행렬 내적곱 진행후, 스케일링
+        ## q[B, n_head, T, head_dim] @ k[B, n_head, head_dim, T] -> [B, n_head, T, T]
+        ## head_dim**0.5 로 몫연산: 계산 값 오버플로우 방지
+        att = q @ k.transpose(-2, -1) / head_dim**0.5        
 
         # 좌측하단이 직각이며 True의 시작점인 삼각형(torch.tril) 마스크 생성
         ## 미래토큰을 볼수없고, 현재와 과거만 볼수있도록 강제함
@@ -75,6 +78,7 @@ class CausalSelfAttention(nn.Module):
         ###         [True,  True,  True,  False],
         ###         [True,  True,  True,  True ]])
         causal = torch.tril(torch.ones(T, T, dtype=torch.bool, device=x.device))
+
         # 위의 마스크를 반전시키고, True를 -inf로 변환
         ## softmax를 거치면 -inf는 0이되면서 미래토큰 완전 무시
         att = att.masked_fill(~causal, float("-inf"))        
@@ -118,8 +122,11 @@ class Block(nn.Module):
 class MiniGPT(nn.Module):
     def __init__(self):
         super().__init__()
+        ## 토큰 임베딩
         self.tok_emb = nn.Embedding(vocab_size, n_embd)
+        ## 포지셔널 임베딩(인코딩)
         self.pos_emb = nn.Embedding(block_size, n_embd)
+
         self.blocks = nn.Sequential(*[Block() for _ in range(n_layer)])
         self.ln_f = nn.LayerNorm(n_embd)
         self.head = nn.Linear(n_embd, vocab_size)
